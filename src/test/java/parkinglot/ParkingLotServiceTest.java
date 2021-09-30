@@ -3,7 +3,6 @@ package parkinglot;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import parkinglot.ParkingLotService;
 
 public class ParkingLotServiceTest {
     ParkingLotService service;
@@ -64,5 +63,17 @@ public class ParkingLotServiceTest {
         service.unPark(vehicle);
         boolean isNotFull = service.isParkingLotFull();
         Assertions.assertFalse(isNotFull);
+    }
+
+    @Test
+    public void parkingLotWhenFoundFull_shouldIndicateToAirportSecurity() throws ParkingLotException {
+        try {
+            service.park(vehicle);
+            if (service.isParkingLotFull()) {
+                throw new ParkingLotSignal("Parking Lot Is FULL");
+            }
+        } catch (ParkingLotSignal signBoard){
+            Assertions.assertEquals("Parking Lot Is FULL",signBoard.getMessage());
+        }
     }
 }

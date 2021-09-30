@@ -1,3 +1,5 @@
+package parkinglot;
+
 public class ParkingLotService {
     public Object parkedVehicle = null;
 
@@ -5,22 +7,26 @@ public class ParkingLotService {
         System.out.println("Welcome to Parking Lot Service System");
     }
 
-    public boolean park(Object vehicle) {
+    public boolean park(Object vehicle) throws ParkingLotException {
         if (this.parkedVehicle!=null) {
-            return false;
+            throw new ParkingLotException("Vehicle is Already Parked");
         }
         this.parkedVehicle = vehicle;
         return true;
     }
 
-    public boolean unPark(Object vehicle) {
+    public boolean unPark(Object vehicle) throws ParkingLotException {
         if(this.parkedVehicle==null){
-            return false;
+            throw new ParkingLotException("No Vehicle parked") ;
         }
         if(this.parkedVehicle.equals(vehicle)){
             parkedVehicle=null;
             return true;
         }
         return false;
+    }
+
+    public boolean isParkingLotFull(){
+        return parkedVehicle != null;
     }
 }

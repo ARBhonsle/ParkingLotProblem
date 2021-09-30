@@ -57,9 +57,12 @@ public class ParkingLotServiceTest {
     }
 
     @Test
-    public void parkingLotChecked_foundFull_shouldReturnTrue() throws ParkingLotException {
+    public void parkingLotWhenChecked_isFoundFull_thenReturnTrue_elseReturnFalse() throws ParkingLotException {
         service.park(vehicle);
         boolean isFull = service.isParkingLotFull();
         Assertions.assertTrue(isFull);
+        service.unPark(vehicle);
+        boolean isNotFull = service.isParkingLotFull();
+        Assertions.assertFalse(isNotFull);
     }
 }

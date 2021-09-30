@@ -70,10 +70,22 @@ public class ParkingLotServiceTest {
         try {
             service.park(vehicle);
             if (service.isParkingLotFull()) {
-                throw new ParkingLotSignal("Parking Lot Is FULL");
+                throw new ParkingLotSignal("Parking Lot is FULL");
             }
         } catch (ParkingLotSignal signBoard){
-            Assertions.assertEquals("Parking Lot Is FULL",signBoard.getMessage());
+            Assertions.assertEquals("Parking Lot is FULL",signBoard.getMessage());
+        }
+    }
+
+    @Test
+    public void parkingLotWhenFoundNotFull_shouldIndicateToOwner() throws ParkingLotException {
+        try {
+            service.park(vehicle);
+            if (service.isParkingLotFull()) {
+                throw new ParkingLotSignal("Parking Allowed in Parking Lot");
+            }
+        } catch (ParkingLotSignal signBoard){
+            Assertions.assertEquals("Parking Allowed in Parking Lot",signBoard.getMessage());
         }
     }
 }

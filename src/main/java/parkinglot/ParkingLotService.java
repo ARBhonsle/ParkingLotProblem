@@ -1,32 +1,57 @@
 package parkinglot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParkingLotService {
-    public Object parkedVehicle = null;
+    private int actualParkingCapacity;
+    public List parkedVehicles;
+    private ParkingLotOwner owner;
+
+    public ParkingLotService(int actualParkingCapacity) {
+        this.parkedVehicles = new ArrayList();
+        this.actualParkingCapacity = actualParkingCapacity;
+    }
 
     public static void main(String[] args) {
         System.out.println("Welcome to Parking Lot Service System");
     }
 
-    public boolean park(Object vehicle) throws ParkingLotException {
-        if (this.parkedVehicle!=null) {
+    public void setActualParkingCapacity(int actualParkingCapacity) {
+        this.actualParkingCapacity = actualParkingCapacity;
+    }
+
+    public void park(Object vehicle) throws ParkingLotException {
+        if (isParkingLotFull()) {
+            this.owner.capacityIsFull();
+            throw new ParkingLotException("Parking Lot is Full");
+        }
+        if (this.isVehicleParked(vehicle)) {
             throw new ParkingLotException("Vehicle is Already Parked");
         }
-        this.parkedVehicle = vehicle;
-        return true;
+        this.parkedVehicles.add(vehicle);
     }
 
     public boolean unPark(Object vehicle) throws ParkingLotException {
-        if(this.parkedVehicle==null){
-            throw new ParkingLotException("No Vehicle parked") ;
+        if (this.parkedVehicles.size() == 0) {
+            throw new ParkingLotException("No Vehicle parked");
         }
-        if(this.parkedVehicle.equals(vehicle)){
-            parkedVehicle=null;
+        if (this.isVehicleParked(vehicle)) {
+            parkedVehicles.remove(vehicle);
             return true;
         }
         return false;
     }
 
-    public boolean isParkingLotFull(){
-        return parkedVehicle != null;
+    public boolean isVehicleParked(Object vehicle) {
+        return this.parkedVehicles.contains(vehicle);
+    }
+
+    public boolean isParkingLotFull() {
+        return this.parkedVehicles.size() == this.actualParkingCapacity;
+    }
+
+    public void registerOwner(ParkingLotOwner owner) {
+        this.owner = owner;
     }
 }

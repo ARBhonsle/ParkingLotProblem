@@ -110,14 +110,18 @@ public class ParkingLotServiceTest {
     }
 
     @Test
-    public void parkingLotWhenFoundNotFull_shouldIndicateToOwner() throws ParkingLotException {
+    public void givenWhenParkingLotHasAvailableSpaceAfterFull_shouldInformToOwner() throws ParkingLotException {
+        ParkingLotObserver owner = new ParkingLotOwner();
+        parkingLotService.registerObserver(owner);
+        parkingLotService.park(vehicle);
+        Object vehicle2 = new Object();
         try {
             parkingLotService.park(vehicle);
-            if (parkingLotService.isParkingLotFull()) {
-                throw new ParkingLotSignal("Parking Allowed in Parking Lot");
-            }
-        } catch (ParkingLotSignal signBoard) {
-            Assertions.assertEquals("Parking Allowed in Parking Lot", signBoard.getMessage());
+            parkingLotService.park(vehicle2);
+        } catch (ParkingLotException e) {
+            Assertions.assertEquals("Parking Lot is Full", e.getMessage());
         }
+        parkingLotService.unPark(vehicle);
+        Assertions.assertFalse(owner.isParkingLotCapacityFull());
     }
 }

@@ -30,13 +30,13 @@ public class ParkingLotService {
         return this.parkedVehicles.size() == this.actualParkingCapacity;
     }
 
-    public void registerObserver(ParkingLotObserver observer){
+    public void registerObserver(ParkingLotObserver observer) {
         this.observers.add(observer);
     }
 
     public void park(Object vehicle) throws ParkingLotException {
         if (isParkingLotFull()) {
-            for(ParkingLotObserver observer : observers){
+            for (ParkingLotObserver observer : observers) {
                 observer.capacityIsFull();
             }
             throw new ParkingLotException("Parking Lot is Full");
@@ -53,6 +53,9 @@ public class ParkingLotService {
         }
         if (this.isVehicleParked(vehicle)) {
             parkedVehicles.remove(vehicle);
+            for (ParkingLotObserver observer : observers) {
+                observer.capacityHasSpaceAvailable();
+            }
             return true;
         }
         return false;

@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ParkingLotServiceTest {
-    ParkingLotService parkingLotService;
-    Object vehicle;
+    ParkingLotService parkingLotService = null;
+    Object vehicle = null;
 
     @BeforeEach
     public void setUp() {
@@ -23,8 +23,6 @@ public class ParkingLotServiceTest {
 
     @Test
     public void givenVehicle_whenParkingAtParkedSlot_shouldReturnException() {
-        ParkingLotOwner owner = new ParkingLotOwner();
-        parkingLotService.registerOwner(owner);
         try {
             parkingLotService.park(vehicle);
             parkingLotService.park(new Object());
@@ -59,13 +57,13 @@ public class ParkingLotServiceTest {
 
     @Test
     public void parkingLotWhenChecked_shouldInformOwnerIfFoundFull() throws ParkingLotException {
-        ParkingLotOwner owner = new ParkingLotOwner();
-        parkingLotService.registerOwner(owner);
+        ParkingLotObserver owner = new ParkingLotOwner();
+        parkingLotService.registerObserver(owner);
         parkingLotService.park(vehicle);
         try {
             parkingLotService.park(vehicle);
             parkingLotService.park(new Object());
-        } catch (Exception e) {
+        } catch (ParkingLotException e) {
             Assertions.assertEquals("Parking Lot is Full", e.getMessage());
         }
         Assertions.assertTrue(owner.isParkingLotCapacityFull());
@@ -83,15 +81,32 @@ public class ParkingLotServiceTest {
     }
 
     @Test
-    public void parkingLotWhenFoundFull_shouldIndicateToAirportSecurity() throws ParkingLotException {
+    public void givenWhenParkingLotIsFull_shouldInformAirportSecurity() {
+        ParkingLotObserver airportSecurity = new AirportSecurity();
+        parkingLotService.registerObserver(airportSecurity);
         try {
             parkingLotService.park(vehicle);
-            if (parkingLotService.isParkingLotFull()) {
-                throw new ParkingLotSignal("Parking Lot is FULL");
-            }
-        } catch (ParkingLotSignal signBoard) {
-            Assertions.assertEquals("Parking Lot is FULL", signBoard.getMessage());
+            parkingLotService.park(new Object());
+        } catch (ParkingLotException e) {
+            Assertions.assertEquals("Parking Lot is Full", e.getMessage());
         }
+        Assertions.assertTrue(airportSecurity.isParkingLotCapacityFull());
+    }
+
+    @Test
+    public void givenParkingLotIsFull_shouldInformAllObserver() {
+        ParkingLotObserver airportSecurity = new AirportSecurity();
+        parkingLotService.registerObserver(airportSecurity);
+        ParkingLotObserver owner = new ParkingLotOwner();
+        parkingLotService.registerObserver(owner);
+        try {
+            parkingLotService.park(vehicle);
+            parkingLotService.park(new Object());
+        } catch (ParkingLotException e) {
+            Assertions.assertEquals("Parking Lot is Full", e.getMessage());
+        }
+        Assertions.assertTrue(owner.isParkingLotCapacityFull());
+        Assertions.assertTrue(airportSecurity.isParkingLotCapacityFull());
     }
 
     @Test

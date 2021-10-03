@@ -6,9 +6,10 @@ import java.util.List;
 public class ParkingLotService {
     private int actualParkingCapacity;
     public List parkedVehicles;
-    private ParkingLotOwner owner;
+    private List<ParkingLotObserver> observers;
 
     public ParkingLotService(int actualParkingCapacity) {
+        this.observers = new ArrayList<>();
         this.parkedVehicles = new ArrayList();
         this.actualParkingCapacity = actualParkingCapacity;
     }
@@ -21,9 +22,23 @@ public class ParkingLotService {
         this.actualParkingCapacity = actualParkingCapacity;
     }
 
+    public boolean isVehicleParked(Object vehicle) {
+        return this.parkedVehicles.contains(vehicle);
+    }
+
+    public boolean isParkingLotFull() {
+        return this.parkedVehicles.size() == this.actualParkingCapacity;
+    }
+
+    public void registerObserver(ParkingLotObserver observer){
+        this.observers.add(observer);
+    }
+
     public void park(Object vehicle) throws ParkingLotException {
         if (isParkingLotFull()) {
-            this.owner.capacityIsFull();
+            for(ParkingLotObserver observer : observers){
+                observer.capacityIsFull();
+            }
             throw new ParkingLotException("Parking Lot is Full");
         }
         if (this.isVehicleParked(vehicle)) {
@@ -43,15 +58,4 @@ public class ParkingLotService {
         return false;
     }
 
-    public boolean isVehicleParked(Object vehicle) {
-        return this.parkedVehicles.contains(vehicle);
-    }
-
-    public boolean isParkingLotFull() {
-        return this.parkedVehicles.size() == this.actualParkingCapacity;
-    }
-
-    public void registerOwner(ParkingLotOwner owner) {
-        this.owner = owner;
-    }
 }

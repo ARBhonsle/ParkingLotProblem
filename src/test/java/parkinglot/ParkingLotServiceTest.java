@@ -126,12 +126,15 @@ public class ParkingLotServiceTest {
     }
 
     @Test
-    public void givenVehicle_OwnerCanParkAtSpecifiedSlots(){
-        try {
-            parkingLotService.park(vehicle);
-        } catch (ParkingLotException e) {
-            Assertions.assertEquals("Parking Lot is Full", e.getMessage());
-        }
+    public void givenVehicle_OwnerCanParkAtSpecifiedSlots() throws ParkingLotException {
+        parkingLotService.park(vehicle);
         Assertions.assertTrue(parkingLotService.isVehicleParked(vehicle));
+    }
+
+    @Test
+    public void givenVehicle_findParkingSlot() throws ParkingLotException {
+        parkingLotService.park(vehicle);
+        int slot = parkingLotService.findVehicle(vehicle);
+        Assertions.assertEquals(1,slot);
     }
 }

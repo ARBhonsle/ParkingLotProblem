@@ -36,6 +36,9 @@ public class ParkingLotService {
         this.parkingSlots = new int[actualParkingCapacity];
     }
 
+    public int findVehicle(Object vehicle){
+        return parkedVehicles.indexOf(vehicle)+1;
+    }
     public boolean isVehicleParked(Object vehicle) {
         return this.parkedVehicles.contains(vehicle);
     }

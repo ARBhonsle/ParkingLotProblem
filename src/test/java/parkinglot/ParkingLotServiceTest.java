@@ -124,4 +124,14 @@ public class ParkingLotServiceTest {
         parkingLotService.unPark(vehicle);
         Assertions.assertFalse(owner.isParkingLotCapacityFull());
     }
+
+    @Test
+    public void givenVehicle_OwnerCanParkAtSpecifiedSlots(){
+        try {
+            parkingLotService.park(vehicle);
+        } catch (ParkingLotException e) {
+            Assertions.assertEquals("Parking Lot is Full", e.getMessage());
+        }
+        Assertions.assertTrue(parkingLotService.isVehicleParked(vehicle));
+    }
 }

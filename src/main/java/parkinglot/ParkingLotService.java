@@ -1,20 +1,15 @@
 package parkinglot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ParkingLotService {
     private int actualParkingCapacity;
-    public List parkedVehicles;
+    public HashMap<Integer, Object> parkedVehicles;
     private List<ParkingLotObserver> observers;
-    private int[] parkingSlots;
 
     public ParkingLotService(int actualParkingCapacity) {
-        this.parkingSlots = new int[100];
-        Arrays.fill(parkingSlots, 0);
         this.observers = new ArrayList<>();
-        this.parkedVehicles = new ArrayList();
+        this.parkedVehicles = new HashMap<>();
         this.actualParkingCapacity = actualParkingCapacity;
     }
 
@@ -23,28 +18,41 @@ public class ParkingLotService {
     }
 
     public int getAvailableParkingSlots() throws ParkingLotException {
-        for (int parkingSlot : parkingSlots) {
-            if (parkingSlot == 0) {
-                return parkingSlot;
+        if (parkedVehicles.keySet().size() == 0) {
+            return 1;
+        }
+        int counter = 1;
+        for (Object parkingSlot : parkedVehicles.values()) {
+            if (parkingSlot == null) {
+                return counter;
             }
+            counter++;
+        }
+        if (parkedVehicles.values().size() < actualParkingCapacity) {
+            return parkedVehicles.values().size();
         }
         throw new ParkingLotException("Parking Lot is Full");
     }
 
     public void setActualParkingCapacity(int actualParkingCapacity) {
         this.actualParkingCapacity = actualParkingCapacity;
-        this.parkingSlots = new int[actualParkingCapacity];
     }
 
-    public int findVehicle(Object vehicle){
-        return parkedVehicles.indexOf(vehicle)+1;
+    public int findVehicle(Object vehicle) throws ParkingLotException {
+        for (Integer key : parkedVehicles.keySet()) {
+            if (parkedVehicles.get(key).equals(vehicle)) {
+                return key;
+            }
+        }
+        throw new ParkingLotException("Given Vehicle Not Parked in Parking Lot");
     }
+
     public boolean isVehicleParked(Object vehicle) {
-        return this.parkedVehicles.contains(vehicle);
+        return this.parkedVehicles.containsValue(vehicle);
     }
 
     public boolean isParkingLotFull() {
-        return this.parkedVehicles.size() == this.actualParkingCapacity;
+        return this.parkedVehicles.keySet().size() == this.actualParkingCapacity;
     }
 
     public void registerObserver(ParkingLotObserver observer) {
@@ -52,37 +60,34 @@ public class ParkingLotService {
     }
 
     public void park(int index, Object vehicle) throws ParkingLotException {
+        if (this.isVehicleParked(vehicle)) {
+            throw new ParkingLotException("Vehicle is Already Parked");
+        }
+        this.parkedVehicles.put(index, vehicle);
+    }
+
+    public void park(Object vehicle) throws ParkingLotException {
         if (isParkingLotFull()) {
             for (ParkingLotObserver observer : observers) {
                 observer.capacityIsFull();
             }
             throw new ParkingLotException("Parking Lot is Full");
         }
-        if (this.isVehicleParked(vehicle)) {
-            throw new ParkingLotException("Vehicle is Already Parked");
-        }
-        parkingSlots[index] = 1;
-        this.parkedVehicles.add(vehicle);
-    }
-
-    public void park(Object vehicle) throws ParkingLotException {
         int index = this.getAvailableParkingSlots();
         this.park(index, vehicle);
 
     }
 
-    public boolean unPark(Object vehicle) throws ParkingLotException {
-        if (this.parkedVehicles.size() == 0) {
+    public void unPark(Object vehicle) throws ParkingLotException {
+        if (this.parkedVehicles.keySet().size() == 0) {
             throw new ParkingLotException("No Vehicle parked");
         }
         if (this.isVehicleParked(vehicle)) {
-            parkedVehicles.remove(vehicle);
+            parkedVehicles.values().remove(vehicle);
             for (ParkingLotObserver observer : observers) {
                 observer.capacityHasSpaceAvailable();
             }
-            return true;
         }
-        return false;
     }
 
 }

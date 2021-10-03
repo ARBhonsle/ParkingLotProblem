@@ -32,16 +32,18 @@ public class ParkingLotServiceTest {
     }
 
     @Test
-    public void givenVehicle_whenUnParked_shouldReturnTrue() throws ParkingLotException {
+    public void givenVehicle_whenUnParked_shouldReturnFalse() throws ParkingLotException {
         parkingLotService.park(vehicle);
-        boolean isUnParked = parkingLotService.unPark(vehicle);
-        Assertions.assertTrue(isUnParked);
+        parkingLotService.unPark(vehicle);
+        boolean isUnParked = parkingLotService.isVehicleParked(vehicle);
+        Assertions.assertFalse(isUnParked);
     }
 
     @Test
     public void givenVehicle_whenUnParkingFromEmptySlot_shouldReturnException() {
         try {
-            boolean isUnParked = parkingLotService.unPark(vehicle);
+            parkingLotService.unPark(vehicle);
+            boolean isUnParked = parkingLotService.isVehicleParked(vehicle);
             Assertions.assertFalse(isUnParked);
         } catch (ParkingLotException e) {
             Assertions.assertEquals("No Vehicle parked", e.getMessage());
@@ -51,7 +53,8 @@ public class ParkingLotServiceTest {
     @Test
     public void givenVehicle_whenUnParkingAnotherVehicle_shouldReturnFalse() throws ParkingLotException {
         parkingLotService.park(new Object());
-        boolean isUnParked = parkingLotService.unPark(vehicle);
+        parkingLotService.unPark(vehicle);
+        boolean isUnParked = parkingLotService.isVehicleParked(vehicle);
         Assertions.assertFalse(isUnParked);
     }
 
@@ -135,6 +138,6 @@ public class ParkingLotServiceTest {
     public void givenVehicle_findParkingSlot() throws ParkingLotException {
         parkingLotService.park(vehicle);
         int slot = parkingLotService.findVehicle(vehicle);
-        Assertions.assertEquals(1,slot);
+        Assertions.assertEquals(1, slot);
     }
 }

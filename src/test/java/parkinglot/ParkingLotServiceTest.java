@@ -138,6 +138,17 @@ public class ParkingLotServiceTest {
     public void givenVehicle_findParkingSlot() throws ParkingLotException {
         parkingLotService.park(vehicle);
         int slot = parkingLotService.findVehicle(vehicle);
-        Assertions.assertEquals(1, slot);
+        Assertions.assertEquals(0, slot);
+    }
+
+    @Test
+    public void givenVehicle_findTimeElapsedInParkingLot() throws ParkingLotException {
+        parkingLotService.park(vehicle);
+        Integer parkingSlotIndex = parkingLotService.findVehicle(vehicle);
+        long entryTime = parkingLotService.getEntryTimeOfParkedVehicle(parkingSlotIndex);
+        boolean isParked = parkingLotService.isVehicleParked(vehicle);
+        Assertions.assertTrue(isParked);
+        long timeElapsed = System.currentTimeMillis() - entryTime;
+        Assertions.assertEquals(0, timeElapsed);
     }
 }

@@ -4,12 +4,12 @@ import java.util.*;
 
 public class ParkingLotService {
     private int actualParkingCapacity;
-    public HashMap<Integer, Object> parkedVehicles;
+    private List<ParkingSlot> parkingSlot;
     private List<ParkingLotObserver> observers;
 
     public ParkingLotService(int actualParkingCapacity) {
         this.observers = new ArrayList<>();
-        this.parkedVehicles = new HashMap<>();
+        this.parkingSlot = new ArrayList<>();
         this.actualParkingCapacity = actualParkingCapacity;
     }
 
@@ -18,52 +18,63 @@ public class ParkingLotService {
     }
 
     public int getAvailableParkingSlots() throws ParkingLotException {
-        if (parkedVehicles.keySet().size() == 0) {
-            return 1;
+        // no filled slots
+        if (parkingSlot.size() == 0) {
+            return 0;
         }
-        int counter = 1;
-        for (Object parkingSlot : parkedVehicles.values()) {
-            if (parkingSlot == null) {
+        // find the nearest unparked slot
+        int counter = 0;
+        for (ParkingSlot slot : parkingSlot) {
+            if (slot == null) {
                 return counter;
             }
             counter++;
         }
-        if (parkedVehicles.values().size() < actualParkingCapacity) {
-            return parkedVehicles.values().size();
+        // find empty parking slots
+        if (parkingSlot.size() < actualParkingCapacity) {
+            return parkingSlot.size();
         }
         throw new ParkingLotException("Parking Lot is Full");
     }
 
-    public void setActualParkingCapacity(int actualParkingCapacity) {
-        this.actualParkingCapacity = actualParkingCapacity;
+    public void setActualParkingCapacity(int parkingCapacity) {
+        this.actualParkingCapacity = parkingCapacity;
     }
 
     public int findVehicle(Object vehicle) throws ParkingLotException {
-        for (Integer key : parkedVehicles.keySet()) {
-            if (parkedVehicles.get(key).equals(vehicle)) {
-                return key;
+        for (ParkingSlot slot : parkingSlot.stream().toList()) {
+            if (slot.getVehicle().equals(vehicle)) {
+                return slot.getParkingSlotIndex();
             }
         }
         throw new ParkingLotException("Given Vehicle Not Parked in Parking Lot");
     }
 
-    public boolean isVehicleParked(Object vehicle) {
-        return this.parkedVehicles.containsValue(vehicle);
+    public boolean isVehicleParked(Object vehicle) throws ParkingLotException {
+        try {
+            return findVehicle(vehicle) < this.actualParkingCapacity;
+        } catch (ParkingLotException e) {
+            if (e.getMessage().equals("Given Vehicle Not Parked in Parking Lot")) {
+                return false;
+            }
+        }
+        return false;
     }
 
     public boolean isParkingLotFull() {
-        return this.parkedVehicles.keySet().size() == this.actualParkingCapacity;
+        return this.parkingSlot.size() == this.actualParkingCapacity;
+    }
+
+    public long getEntryTimeOfParkedVehicle(Integer index) {
+        return this.parkingSlot.get(index).getEntryTime();
     }
 
     public void registerObserver(ParkingLotObserver observer) {
         this.observers.add(observer);
     }
 
-    public void park(int index, Object vehicle) throws ParkingLotException {
-        if (this.isVehicleParked(vehicle)) {
-            throw new ParkingLotException("Vehicle is Already Parked");
-        }
-        this.parkedVehicles.put(index, vehicle);
+    public void park(int index, Object vehicle) {
+        this.parkingSlot.add(new ParkingSlot(index, vehicle));
     }
 
     public void park(Object vehicle) throws ParkingLotException {
@@ -73,17 +84,20 @@ public class ParkingLotService {
             }
             throw new ParkingLotException("Parking Lot is Full");
         }
+        if (this.isVehicleParked(vehicle)) {
+            throw new ParkingLotException("Vehicle is Already Parked");
+        }
         int index = this.getAvailableParkingSlots();
         this.park(index, vehicle);
 
     }
 
     public void unPark(Object vehicle) throws ParkingLotException {
-        if (this.parkedVehicles.keySet().size() == 0) {
+        if (this.parkingSlot.size() == 0) {
             throw new ParkingLotException("No Vehicle parked");
         }
         if (this.isVehicleParked(vehicle)) {
-            parkedVehicles.values().remove(vehicle);
+            parkingSlot.remove(findVehicle(vehicle));
             for (ParkingLotObserver observer : observers) {
                 observer.capacityHasSpaceAvailable();
             }
